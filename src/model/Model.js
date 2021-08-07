@@ -1,6 +1,19 @@
 const initModel = {
-    description: "Breakfast",
-    calories: 200
+    cards: [],
+    question: "",
+    answer: "",
+    nextID: 1,
+    editID: null,
+    showCardForm: false
+}
+
+const card = {
+    question: "",
+    answer: "",
+    id: 0,
+    showAnswer: false,
+    rating: null,
+    showButtons: false
 }
 
 
