@@ -6,16 +6,13 @@ function AppManager(model, view, update, node) {
     let updateModel = model;
     let currentView = view(dispatch, updateModel);
     let rootNode = createElement(currentView);
-    console.log(rootNode);
-   // node.appendChild(currentView /*rootNode*/);
+    node.appendChild(rootNode);
 
     function dispatch(msg) {
         updateModel = update(msg, model);
-       /* const updatedView = view(dispatch, updateModel);
+        const updatedView = view(dispatch, updateModel);
         const patches = diff(currentView, updatedView);
-        rootNode = patch(rootNode, patches);*/
-        const updatedView = view(dispatch, model);
-        node.replaceChild(updatedView, currentView);
+        rootNode = patch(rootNode, patches);
         currentView = updatedView;
     }
 }
