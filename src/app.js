@@ -9,7 +9,7 @@ function AppManager(model, view, update, node) {
     node.appendChild(rootNode);
 
     function dispatch(msg) {
-        updateModel = update(msg, model);
+        updateModel = update(msg, updateModel);
         const updatedView = view(dispatch, updateModel);
         const patches = diff(currentView, updatedView);
         rootNode = patch(rootNode, patches);
