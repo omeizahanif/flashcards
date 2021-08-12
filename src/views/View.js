@@ -1,20 +1,22 @@
 import hh from 'hyperscript-helpers';
 import R from 'ramda';
 import { h } from 'virtual-dom';
-
-
+import { saveQuestionInput, showFormMsg, saveAnswerInput, createCardMsg } from '../controllers/Update';
 
 const { pre, div, p, h2, h1, form, label, textarea, button, i, article } = hh(h);
 
-function cardDiv(model) {
+function cardDiv(dispatch, model) {
     return div({ className: "outline w-50 pa3 mr2 mt4 bg-light-yellow"}, [
-        deleteButton("delete clicked"),
+        i({
+            className: "fas fa-trash fr pointer",
+            //onclick: () => dispatch()
+        }),
         div([
-            h2({ onclick: console.log("question clicked")}, "Question"),
+            h2(/*{ onclick: () => dispatch(MSGS.SHOW_FORM)},*/ "Question"),
             p("ipsum lorem dolor amet")
         ]),
         div([
-            h2({onclick: console.log("answer clicked")}, "Answer"),
+            h2(/*{onclick: () => dispatch(MSGS.SHOW_FORM)},*/ "Answer"),
             p("Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."),
             div([
                 ratingButton("bg-red", "bad clicked", "bad"),
@@ -25,72 +27,60 @@ function cardDiv(model) {
     ])
 }
 
-function ratingButton(color, msg, text) {
+function ratingButton(color, text) {
     return button(
         {
             className: `f6 link dim br2 ph3 pv2 mb2 dib white ${color}`,
-            onclick: console.log(msg)
+           // onclick: () => dispatch(MSGS.SHOW_FORM)
         },
         text
     )
 }
-function createLabel(text, inputID) {
-    return label(
-        { for: inputID,
-        className: "f6 b db mb2"
-        }, text)
-}
-
-function createInputField(inputID) {
-    return textarea(
-        { 
-            id: inputID,
-            className: "db border-box hover-black w-100 measure ba b--black-20 pa2 br2 mb2",
-            //onInput, 
-            placeholder: "Enter text here"
-        }
+function createFormField(labelText, oninput) {
+    return div(
+        [
+            label({ className: "f6 b db mv3"}, labelText),
+            textarea({
+                className: "db border-box w-100 b--black-20 pa2 br2 mv3",
+                oninput,
+        
+            })
+        ]
     )
 }
 
-function addCardButton(msg) {
+
+function cardForm(dispatch, model) {
+    const { showCardForm, question, answer } = model;
+    if (showCardForm) {
+        return form({ className: "outline w-25 pa3 mr2 mt4 bg-light-yellow" }, [
+            i({
+                className: "fas fa-trash fr pointer",
+                onclick: () => dispatch(showFormMsg(false))
+            }),
+            createFormField("Question", (e) => dispatch(saveQuestionInput(e.target.value))),
+            createFormField("Answer", (e) => dispatch(saveAnswerInput(e.target.value))),
+            button(
+                {
+                    className: "f6 br2 ph3 pv2 mb2 white bg-dark-blue",
+                    type: "submit",
+                    onclick: () => dispatch(createCardMsg(question, answer))
+                }, "Save")
+        ])
+    }
     return button(
         {
-            className: "f6 link dim br2 ph3 pv2 mb2 dib white bg-dark-green",
+            className: "f6 dim br2 ph3 pv2 mb2 dib white bg-dark-green",
+            onclick: () => dispatch(showFormMsg(true))
         },
-        "+ Add Flashcard"
-    )
+        "+ Add Flashcard")
 }
 
-function cardForm() {
-    return form()
-}
-
-function saveButton(msg) {
-    return button(
-        {
-            className: "f6 link dim br2 ph3 pv2 mb2 dib white bg-dark-blue",
-            onclick: console.log(msg)
-        }
-    )
-}
-
-function deleteButton(msg) {
-    return i(
-        {
-            className: "fas fa-trash fr",
-            onclick: console.log(msg)
-        }
-    )
-}
 
 function view(dispatch, model) {
     return div({ className: "tc-l mt4 mt5-m mt6-l ph3" }, [
         h1({ className: "f2 f1-l fw2 mb0 lh-title bb bw2 tl" }, "Flashcards"),
-        article({ className: "flex"}, [
-            cardDiv(model),
-            cardDiv(model),
-            cardDiv(model)
-        ]),
+        article({ className: "flex"}, cardForm(dispatch, model)),
         pre({className: "tc-l w-100 mh3 ph2" }, JSON.stringify(model, null, 2))
     ])
 
