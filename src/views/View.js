@@ -1,33 +1,35 @@
 import hh from 'hyperscript-helpers';
-import R from 'ramda';
+import * as R from 'ramda';
 import { h } from 'virtual-dom';
-import { saveQuestionInput, showFormMsg, saveAnswerInput, createCardMsg } from '../controllers/Update';
+import { saveQuestionInput, showFormMsg, saveAnswerInput, createCardMsg, editQuestionMsg } from '../controllers/Update';
 
 const { pre, div, p, h2, h1, form, label, textarea, button, i, article } = hh(h);
 
-function cardDiv(dispatch, model) {
-    return div({ className: "outline w-50 pa3 mr2 mt4 bg-light-yellow"}, [
+function cardDiv(dispatch, card) {
+    const { question, answer, id } = card;
+    //console.log({ question, answer });
+    return div({ className: "outline w-45 pa2 mr2 mt2 bg-light-yellow"}, [
         i({
             className: "fas fa-trash fr pointer",
             //onclick: () => dispatch()
         }),
         div([
-            h2(/*{ onclick: () => dispatch(MSGS.SHOW_FORM)},*/ "Question"),
-            p("ipsum lorem dolor amet")
+            h2({ onclick: () => dispatch(editQuestionMsg(id))}, "Question"),
+            p(question)
         ]),
         div([
-            h2(/*{onclick: () => dispatch(MSGS.SHOW_FORM)},*/ "Answer"),
-            p("Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."),
+            h2({onclick: () => dispatch(MSGS.SHOW_FORM)}, "Answer"),
+            p(answer),
             div([
-                ratingButton("bg-red", "bad clicked", "bad"),
-                ratingButton("bg-blue", "good clicked", "good"),
-                ratingButton("bg-green", "great clicked", "great")
+                ratingButton(dispatch, "bg-red", "bad"),
+                ratingButton(dispatch, "bg-blue", "good"),
+                ratingButton(dispatch, "bg-green", "great")
             ])
         ])
     ])
 }
 
-function ratingButton(color, text) {
+function ratingButton(dispatch, color, text) {
     return button(
         {
             className: `f6 link dim br2 ph3 pv2 mb2 dib white ${color}`,
@@ -36,14 +38,14 @@ function ratingButton(color, text) {
         text
     )
 }
-function createFormField(labelText, oninput) {
+function createFormField(labelText, oninput/*, inputValue*/) {
     return div(
         [
             label({ className: "f6 b db mv3"}, labelText),
             textarea({
                 className: "db border-box w-100 b--black-20 pa2 br2 mv3",
                 oninput,
-        
+                //value: inputValue
             })
         ]
     )
@@ -51,7 +53,8 @@ function createFormField(labelText, oninput) {
 
 
 function cardForm(dispatch, model) {
-    const { showCardForm, question, answer } = model;
+
+    const { showCardForm, question, answer, editID } = model;
     if (showCardForm) {
         return form({ className: "outline w-25 pa3 mr2 mt4 bg-light-yellow" }, [
             i({
@@ -64,23 +67,37 @@ function cardForm(dispatch, model) {
                 {
                     className: "f6 br2 ph3 pv2 mb2 white bg-dark-blue",
                     type: "submit",
-                    onclick: () => dispatch(createCardMsg(question, answer))
+                    onclick: () => dispatch(createCardMsg(question, answer, editID))
                 }, "Save")
         ])
     }
     return button(
         {
-            className: "f6 dim br2 ph3 pv2 mb2 dib white bg-dark-green",
+            className: "f6 dim br2 ph3 pv2 ma2 dib white bg-dark-green",
             onclick: () => dispatch(showFormMsg(true))
         },
         "+ Add Flashcard")
 }
 
+function cardContainer(dispatch, model) {
+    const { cards } = model;
+    let row = [];
+
+    if (cards) {
+        row = R.map(card => cardDiv(dispatch, card));
+    }
+
+    return row(cards);
+} 
+
 
 function view(dispatch, model) {
     return div({ className: "tc-l mt4 mt5-m mt6-l ph3" }, [
         h1({ className: "f2 f1-l fw2 mb0 lh-title bb bw2 tl" }, "Flashcards"),
-        article({ className: "flex"}, cardForm(dispatch, model)),
+        article({ className: "flex items-start"}, [
+            cardForm(dispatch, model),
+            cardContainer(dispatch, model)
+        ]),
         pre({className: "tc-l w-100 mh3 ph2" }, JSON.stringify(model, null, 2))
     ])
 
