@@ -38,14 +38,14 @@ function ratingButton(dispatch, color, text) {
         text
     )
 }
-function createFormField(labelText, oninput/*, inputValue*/) {
+function createFormField(labelText, oninput, inputValue) {
     return div(
         [
             label({ className: "f6 b db mv3"}, labelText),
             textarea({
                 className: "db border-box w-100 b--black-20 pa2 br2 mv3",
                 oninput,
-                //value: inputValue
+                value: inputValue
             })
         ]
     )
@@ -61,13 +61,13 @@ function cardForm(dispatch, model) {
                 className: "fas fa-trash fr pointer",
                 onclick: () => dispatch(showFormMsg(false))
             }),
-            createFormField("Question", (e) => dispatch(saveQuestionInput(e.target.value))),
-            createFormField("Answer", (e) => dispatch(saveAnswerInput(e.target.value))),
+            createFormField("Question", (e) => dispatch(saveQuestionInput(e.target.value)), question),
+            createFormField("Answer", (e) => dispatch(saveAnswerInput(e.target.value)), answer),
             button(
                 {
                     className: "f6 br2 ph3 pv2 mb2 white bg-dark-blue",
                     type: "submit",
-                    onclick: () => dispatch(createCardMsg(question, answer, editID))
+                    onclick: () => dispatch(createCardMsg(question, answer))
                 }, "Save")
         ])
     }

@@ -8,7 +8,7 @@ module.exports = {
   devServer: {
     contentBase: './src',
     compress: true,
-    port: 8000,
+    port: 5000,
   },
   module: {
     rules: [

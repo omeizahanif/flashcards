@@ -31,12 +31,11 @@ export function saveAnswerInput(answer) {
     }
 }
 
-export function createCardMsg(question, answer, id) {
+export function createCardMsg(question, answer) {
     return {
         type: MSGS.CREATE_CARD,
         question,
-        answer,
-        id
+        answer
     }
 }
 
@@ -65,29 +64,57 @@ function update(msg, model) {
         }
 
         case MSGS.CREATE_CARD: {
-            const { question, answer, id } = msg;
-            const { cards, nextID } = model;
-            cards.push({
-                question,
-                answer,
-                id: nextID,
-                showAnswer: false,
-                rating: null,
-                showButtons: false
-            })
-            return { ...model, cards, question: '', answer: '', nextID: nextID + 1, showCardForm: false }
+            const { question, answer } = msg;
+            const { editID, cards } = model;
+            console.log(editID);
+            if (editID == null) {
+                return add(msg, model);
+            }
+            const updatedCards = R.map(card => {
+                   if ( editID == card.id ) {
+                       return { ...card, question, answer }
+                   }
+            }, cards);
+
+            return { ...model, cards: updatedCards, question: '', answer: '', editID: null, showCardForm: false };
+            
         }
 
         case MSGS.EDIT_QUESTION: {
             //find card with that id
             const { editID } = msg;
-            const card = R.filter(card => id == card.id, model.cards);
+            const card = R.find(card => editID == card.id, model.cards);
             //turn on the showCardForm,
             //populate it with the card
-            return { ...model, editID, showCardForm: true, question: card.question, answer: card.answer }
+            const { question, answer } = card;
+            return { ...model, editID, showCardForm: true, question, answer }
         }
 
     }
+}
+
+function add(msg, model) {
+    const { question, answer } = msg;
+    const { cards, nextID } = model;
+    cards.push({
+        question,
+        answer,
+        id: nextID,
+        showAnswer: false,
+        rating: null,
+        showButtons: false
+    })
+
+    return { ...model, cards, question: '', answer: '', nextID: nextID + 1, showCardForm: false }
+}
+
+function updateCard(cards, msg, editID) {
+    /*const { question, answer } = msg;
+    let card = R.find(card => editID == card.id, cards);
+    card = { ...card, question, answer };
+    cards = [ ...cards, card ];
+    return { ...model, cards, question: '', answer: '', editID: null, showCardForm: false }*/
+    return 'UPDATE'
 }
 
 export default update;
