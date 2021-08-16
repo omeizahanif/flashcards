@@ -1,12 +1,14 @@
 import hh from 'hyperscript-helpers';
 import * as R from 'ramda';
 import { h } from 'virtual-dom';
-import { saveQuestionInput, showFormMsg, saveAnswerInput, createCardMsg, editQuestionMsg } from '../controllers/Update';
+import { saveQuestionInput, showFormMsg, saveAnswerInput, createCardMsg, editQuestionMsg, showAnswerMsg } from '../controllers/Update';
+
 
 const { pre, div, p, h2, h1, form, label, textarea, button, i, article } = hh(h);
 
 function cardDiv(dispatch, card) {
-    const { question, answer, id } = card;
+    const { question, answer, id, showAnswer } = card;
+    let value = showAnswer ? 'dib' : 'dn';
     //console.log({ question, answer });
     return div({ className: "outline w-45 pa2 mr2 mt2 bg-light-yellow"}, [
         i({
@@ -15,24 +17,24 @@ function cardDiv(dispatch, card) {
         }),
         div([
             h2({ onclick: () => dispatch(editQuestionMsg(id))}, "Question"),
-            p(question)
+            p(question),
         ]),
         div([
-            h2({onclick: () => dispatch(MSGS.SHOW_FORM)}, "Answer"),
-            p(answer),
+            h2({onclick: () => dispatch(showAnswerMsg(id))}, "Answer"),
+            p({className: `${value}` }, answer),
             div([
-                ratingButton(dispatch, "bg-red", "bad"),
-                ratingButton(dispatch, "bg-blue", "good"),
-                ratingButton(dispatch, "bg-green", "great")
+                ratingButton(dispatch, "bg-red", "bad", value),
+                ratingButton(dispatch, "bg-blue", "good", value),
+                ratingButton(dispatch, "bg-green", "great", value)
             ])
         ])
     ])
 }
 
-function ratingButton(dispatch, color, text) {
+function ratingButton(dispatch, color, text, displayValue) {
     return button(
         {
-            className: `f6 link dim br2 ph3 pv2 mb2 dib white ${color}`,
+            className: `f6 link dim br2 ph3 pv2 mb2 ${displayValue} white ${color}`,
            // onclick: () => dispatch(MSGS.SHOW_FORM)
         },
         text

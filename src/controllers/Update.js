@@ -6,7 +6,7 @@ const MSGS = {
     ANSWER_INPUT: 'ANSWER_INPUT',
     CREATE_CARD: 'CREATE_CARD',
     EDIT_QUESTION: 'EDIT_QUESTION',
-    SHOW_ANSWER: 'SHOW_ANSWER'
+    SHOW_ANSWER: 'SHOW_ANSWER',
 
 }
 
@@ -46,11 +46,18 @@ export function editQuestionMsg(editID) {
     }
 }
 
+export function showAnswerMsg(id) {
+    return {
+        type: MSGS.SHOW_ANSWER,
+        id
+    }
+}
+
 function update(msg, model) {
     switch(msg.type) {
         case MSGS.SHOW_FORM: {
             const { showCardForm } = msg;
-            return { ...model, showCardForm, question: "" };
+            return { ...model, showCardForm, question: "", answer: "" };
         }
             
         case MSGS.QUESTION_INPUT: {
@@ -66,7 +73,6 @@ function update(msg, model) {
         case MSGS.CREATE_CARD: {
             const { question, answer } = msg;
             const { editID, cards } = model;
-            console.log(editID);
             if (editID == null) {
                 return add(msg, model);
             }
@@ -90,6 +96,18 @@ function update(msg, model) {
             return { ...model, editID, showCardForm: true, question, answer }
         }
 
+        case MSGS.SHOW_ANSWER: {
+            const { cards } = model;
+            const { id } = msg;
+            const updatedCards = R.map(card => {
+                if ( id == card.id ) {
+                    return card.showAnswer ? { ...card, showAnswer: false } : { ...card, showAnswer: true };
+                }
+         }, cards);
+
+         return { ...model, cards: updatedCards };
+
+        }
     }
 }
 
@@ -108,13 +126,5 @@ function add(msg, model) {
     return { ...model, cards, question: '', answer: '', nextID: nextID + 1, showCardForm: false }
 }
 
-function updateCard(cards, msg, editID) {
-    /*const { question, answer } = msg;
-    let card = R.find(card => editID == card.id, cards);
-    card = { ...card, question, answer };
-    cards = [ ...cards, card ];
-    return { ...model, cards, question: '', answer: '', editID: null, showCardForm: false }*/
-    return 'UPDATE'
-}
 
 export default update;
